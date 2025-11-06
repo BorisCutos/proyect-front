@@ -81,7 +81,7 @@ jobs:
       - name: Deploy via Helm
         run: |
           helm upgrade --install mi-deployment-frontend ./mi-chart \
-            -n ${{ env.OPENSHIFT_PROJECT }} --create-namespace \
+            -n ${{ env.OPENSHIFT_PROJECT }} \
             --set fullnameOverride=mi-deployment-frontend \
             --set image.repository=${{ secrets.DOCKER_USERNAME }}/pruebas-seguridad \
             --set image.tag=build-${{ github.run_number }} \
