@@ -74,14 +74,14 @@ jobs:
 
       - name: Deploy via Helm (equivalente a tu oc.yaml)
         run: |
-          helm upgrade --install mi-deployment-secundario_2 ./mi-chart \
+          helm upgrade --install mi-deployment-secundario-2 ./mi-chart \
             -n ${{ env.OPENSHIFT_PROJECT }} \
             --set namespace=${{ env.OPENSHIFT_PROJECT }} \
             --set image.repository=${{ secrets.DOCKER_USERNAME }}/segundodeploy \
             --set image.tag=build-${{ github.run_number }}
 
       - name: Wait for rollout
-        run: oc rollout status deployment/mi-deployment-secundario_2 -n ${{ env.OPENSHIFT_PROJECT }}
+        run: oc rollout status deployment/mi-deployment-secundario-2 -n ${{ env.OPENSHIFT_PROJECT }}
 
       - name: Show resources
         run: |

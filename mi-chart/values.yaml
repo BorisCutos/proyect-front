@@ -1,15 +1,15 @@
 namespace: k-att-y70-dev
 
 names:
-  deployment: mi-deployment-secundario_2
-  service: mi-servicio-secundario_2
-  configmap: mi-configmap-secundario_2
-  secret: mi-secret-secundario_2
-  hpa: mi-hpa-secundario_2
+  deployment: mi-deployment-secundario-2
+  service: mi-servicio-secundario-2
+  configmap: mi-configmap-secundario-2
+  secret: mi-secret-secundario-2
+  hpa: mi-hpa-secundario-2
   pvc: mi-pvc-vsecundario
 
 labels:
-  app: mi-app-secundario_2
+  app: mi-app-secundario-2
   areanegocio: tecnologia
 
 replicas: 1
