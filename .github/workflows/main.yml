@@ -75,6 +75,7 @@ jobs:
           helm upgrade --install mi-deployment-frontend ./mi-chart \
             -n ${{ env.OPENSHIFT_PROJECT }} --create-namespace \
             --set fullnameOverride=mi-deployment-frontend \
+            --set image.repository=${{ secrets.DOCKER_USERNAME }}/pruebas-seguridad \
             --set image.tag=build-${{ github.run_number }} \
             --set envFrom.configMap.create=false \
             --set envFrom.configMap.name=mi-configmap-frontend \
