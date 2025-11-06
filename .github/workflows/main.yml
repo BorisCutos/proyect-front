@@ -31,10 +31,18 @@ jobs:
           tags: |
             type=raw,value=build-${{ github.run_number }}
 
+      - name: Debug workspace (check chart & Dockerfile)
+        run: |
+          pwd
+          ls -la
+          ls -la mi-chart || true
+          find . -maxdepth 3 -iname 'Dockerfile*' -print
+
       - name: Build & Push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./mi-chart               # <-- ahora el código y Dockerfile están aquí
+          file: ./mi-chart/Dockerfile       # <-- ruta explícita del Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -82,16 +90,8 @@ jobs:
             --set envFrom.secret.create=false \
             --set envFrom.secret.name=mi-secret-frontend
 
-      - name: Debug workspace
-        run: |
-          pwd
-          ls -la
-          find . -maxdepth 3 -name 'Dockerfile*' -print
-
-
       - name: Wait for rollout
         run: oc rollout status deployment/mi-deployment-frontend -n ${{ env.OPENSHIFT_PROJECT }}
-
 
       - name: Show deployment info
         run: |
