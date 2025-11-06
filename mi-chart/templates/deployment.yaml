@@ -1,62 +1,56 @@
-# mi-chart/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "mi.fullname" . }}
+  name: {{ .Values.names.deployment }}
+  namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mi.labels" . | nindent 4 }}
+    app: {{ .Values.labels.app }}
+    areanegocio: {{ .Values.labels.areanegocio }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.replicas }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "mi.fullname" . }}
+      app: {{ .Values.labels.app }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "mi.fullname" . }}
-        {{- include "mi.labels" . | nindent 8 }}
+        app: {{ .Values.labels.app }}
     spec:
       containers:
-        - name: contenedor-frontend
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        - name: contenedor-principal
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.containerPort }}
+          resources:
+            requests:
+              cpu: {{ .Values.resources.requests.cpu | quote }}
+              memory: {{ .Values.resources.requests.memory | quote }}
+            limits:
+              cpu: {{ .Values.resources.limits.cpu | quote }}
+              memory: {{ .Values.resources.limits.memory | quote }}
           envFrom:
             - configMapRef:
-                name: {{ .Values.envFrom.configMap.name }}
+                name: {{ .Values.names.configmap }}
             - secretRef:
-                name: {{ .Values.envFrom.secret.name }}
-          {{- if .Values.probes.startup.enabled }}
+                name: {{ .Values.names.secret }}
           startupProbe:
             httpGet:
               path: {{ .Values.probes.startup.path }}
-              port: {{ .Values.containerPort }}
+              port: {{ .Values.probes.startup.port }}
             failureThreshold: {{ .Values.probes.startup.failureThreshold }}
             periodSeconds: {{ .Values.probes.startup.periodSeconds }}
-          {{- end }}
           readinessProbe:
             httpGet:
               path: {{ .Values.probes.readiness.path }}
-              port: {{ .Values.containerPort }}
+              port: {{ .Values.probes.readiness.port }}
             failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
             initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
             periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
           livenessProbe:
             httpGet:
               path: {{ .Values.probes.liveness.path }}
-              port: {{ .Values.containerPort }}
+              port: {{ .Values.probes.liveness.port }}
             failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
             initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
             periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
-          {{- if and .Values.pvc.enabled .Values.pvc.mount.enabled }}
-          volumeMounts:
-            - name: datos
-              mountPath: {{ .Values.pvc.mount.mountPath }}
-          {{- end }}
-      {{- if and .Values.pvc.enabled .Values.pvc.mount.enabled }}
-      volumes:
-        - name: datos
-          persistentVolumeClaim:
-            claimName: {{ .Values.pvc.name }}
-      {{- end }}

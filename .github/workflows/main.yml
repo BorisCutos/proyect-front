@@ -1,6 +1,6 @@
-name: CI-Helm-Deploy
+name: CI-Helm-Deploy-Secundario
 
-on: 
+on:
   push:
     branches: ["main"]
   workflow_dispatch:
@@ -12,7 +12,6 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -20,18 +19,18 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME  }}
-          password: ${{ secrets.DOCKERHUB_TOKEN  }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Extract metadata for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.DOCKER_USERNAME }}/pruebas-seguridad
+          images: ${{ secrets.DOCKER_USERNAME }}/segundodeploy
           tags: |
             type=raw,value=build-${{ github.run_number }}
 
-      - name: Debug workspace (check chart & Dockerfile)
+      - name: Debug workspace (chart & Dockerfile)
         run: |
           pwd
           ls -la
@@ -41,16 +40,15 @@ jobs:
       - name: Build & Push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./mi-chart               # <-- ahora el código y Dockerfile están aquí
-          file: ./mi-chart/Dockerfile       # <-- ruta explícita del Dockerfile
+          context: ./mi-chart
+          file: ./mi-chart/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-  
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -62,7 +60,7 @@ jobs:
           curl -L https://get.helm.sh/helm-v3.15.4-linux-amd64.tar.gz | tar xz
           sudo mv linux-amd64/helm /usr/local/bin/ && helm version
 
-      - name: Log in Openshift
+      - name: Log in to OpenShift
         uses: redhat-actions/oc-login@v1
         with:
           openshift_server_url: ${{ env.OPENSHIFT_SERVER_URL }}
@@ -71,29 +69,21 @@ jobs:
       - name: Select OpenShift project
         run: oc project ${{ env.OPENSHIFT_PROJECT }}
 
-      - name: Ensure ConfigMap & Secret exist
-        run: |
-          oc get configmap mi-configmap-frontend || \
-          oc create configmap mi-configmap-frontend --from-literal=DATABASE=192.168.1.1
-          oc get secret mi-secret-frontend || \
-          oc create secret generic mi-secret-frontend --from-literal=PASSWORD=hola --type=Opaque
+      - name: Helm Lint (sanity)
+        run: helm lint ./mi-chart
 
-      - name: Deploy via Helm
+      - name: Deploy via Helm (equivalente a tu oc.yaml)
         run: |
-          helm upgrade --install mi-deployment-frontend ./mi-chart \
+          helm upgrade --install mi-deployment-secundario_2 ./mi-chart \
             -n ${{ env.OPENSHIFT_PROJECT }} \
-            --set fullnameOverride=mi-deployment-frontend \
-            --set image.repository=${{ secrets.DOCKER_USERNAME }}/pruebas-seguridad \
-            --set image.tag=build-${{ github.run_number }} \
-            --set envFrom.configMap.create=false \
-            --set envFrom.configMap.name=mi-configmap-frontend \
-            --set envFrom.secret.create=false \
-            --set envFrom.secret.name=mi-secret-frontend
+            --set namespace=${{ env.OPENSHIFT_PROJECT }} \
+            --set image.repository=${{ secrets.DOCKER_USERNAME }}/segundodeploy \
+            --set image.tag=build-${{ github.run_number }}
 
       - name: Wait for rollout
-        run: oc rollout status deployment/mi-deployment-frontend -n ${{ env.OPENSHIFT_PROJECT }}
+        run: oc rollout status deployment/mi-deployment-secundario_2 -n ${{ env.OPENSHIFT_PROJECT }}
 
-      - name: Show deployment info
+      - name: Show resources
         run: |
-          oc get pods -n ${{ env.OPENSHIFT_PROJECT }}
-          oc get svc -n ${{ env.OPENSHIFT_PROJECT }} -o wide
+          oc get deploy,svc,cm,secret,hpa,pvc -n ${{ env.OPENSHIFT_PROJECT }} -o wide
+          oc get pods -n ${{ env.OPENSHIFT_PROJECT }} -o wide

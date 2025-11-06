@@ -1,6 +1,6 @@
 apiVersion: v2
-name: mi-chart-frontend
-description: Conversión 1:1 de oc.yaml a Helm para OpenShift
-version: 0.1.0
-appVersion: "0.1.0"
+name: mi-chart-secundario_2
+description: Helm chart equivalente a oc.yaml (sin cambios funcionales)
 type: application
+version: 0.1.0
+appVersion: "1.0.0"
