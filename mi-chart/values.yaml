@@ -6,7 +6,7 @@ names:
   configmap: mi-configmap-secundario-2
   secret: mi-secret-secundario-2
   hpa: mi-hpa-secundario-2
-  pvc: mi-pvc-vsecundario
+  pvc: mi-pvc-secundario-2
 
 labels:
   app: mi-app-secundario-2
