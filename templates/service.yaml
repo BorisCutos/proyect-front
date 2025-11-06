@@ -1,0 +1,15 @@
+# mi-chart/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mi.fullname" . | replace "mi-deployment" "mi-servicio" }}
+  labels:
+    {{- include "mi.labels" . | nindent 4 }}
+spec:
+  selector:
+    app.kubernetes.io/name: {{ include "mi.fullname" . }}
+  ports:
+    - protocol: TCP
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.containerPort }}
+  type: {{ .Values.service.type }}

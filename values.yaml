@@ -1,0 +1,80 @@
+# mi-chart/values.yaml
+nameOverride: ""
+fullnameOverride: "mi-deployment-frontend"
+
+replicaCount: 1
+
+image:
+  repository: boriscutos/pruebas-seguridad   # <- estático; el pipeline solo cambia el tag
+  tag: "latest"                              # <- el pipeline lo sobreescribe con build-${GITHUB_RUN_NUMBER}
+  pullPolicy: Always
+
+# Puertos iguales a tu oc.yaml
+containerPort: 3000
+service:
+  type: ClusterIP
+  port: 4000
+
+# Recursos idénticos a tu oc.yaml
+resources:
+  requests:
+    cpu: "500m"
+    memory: "800Mi"
+  limits:
+    cpu: "1000m"
+    memory: "1500Mi"
+
+# Probes iguales a tu oc.yaml
+probes:
+  startup:
+    enabled: true
+    path: /startup
+    failureThreshold: 5
+    periodSeconds: 10
+  readiness:
+    path: /readiness
+    failureThreshold: 5
+    initialDelaySeconds: 0
+    periodSeconds: 10
+  liveness:
+    path: /health
+    failureThreshold: 5
+    initialDelaySeconds: 0
+    periodSeconds: 10
+
+# ConfigMap/Secret: por defecto NO los crea, solo los referencia
+# (puedes cambiarlos a create:true si quieres que el chart los cree)
+envFrom:
+  configMap:
+    create: false
+    name: mi-configmap-frontend
+    data:
+      DATABASE: "192.168.1.1"
+  secret:
+    create: false
+    name: mi-secret-frontend
+    data:
+      PASSWORD: aG9sYQ==
+
+# HPA habilitado
+hpa:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 5
+  cpuAverageUtilization: 100
+
+# PVC igual a tu oc.yaml (ojo con RWX en gp3 si tu clúster no lo soporta)
+pvc:
+  enabled: true
+  name: mi-pvc-frontend
+  storageClassName: gp3
+  accessModes: ["ReadWriteMany"]
+  size: 1Gi
+  mount:
+    enabled: false       # por defecto no se monta (igual que en tu oc.yaml)
+    mountPath: "/app/data"
+
+# Labels iguales a tu manifiesto
+labels:
+  app: mi-app-frontend
+  areanegocio: tecnologia
