@@ -1,24 +1,22 @@
-# frontend/templates/route.yaml
-{{- if .Values.route.enabled }}
+{{- if and (hasKey .Values "route") (hasKey .Values.route "enabled") .Values.route.enabled }}
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: {{ include "frontend.fullname" . }}
+  name: {{ include "mi.fullname" . }}
   labels:
-    {{- include "frontend.labels" . | nindent 4 }}
+    {{- include "mi.labels" . | nindent 4 }}
 spec:
+  to:
+    kind: Service
+    name: {{ include "mi.fullname" . | replace "mi-deployment" "mi-servicio" }}
+  port:
+    targetPort: http
   {{- if .Values.route.host }}
   host: {{ .Values.route.host }}
   {{- end }}
-  to:
-    kind: Service
-    name: {{ include "frontend.fullname" . }}
-    weight: 100
-  port:
-    targetPort: http
-  {{- if .Values.route.tls.enabled }}
+  {{- if and (hasKey .Values.route "tls") .Values.route.tls.enabled }}
   tls:
-    termination: {{ .Values.route.tls.termination }}
-    insecureEdgeTerminationPolicy: {{ .Values.route.tls.insecureEdgeTerminationPolicy }}
+    termination: {{ .Values.route.tls.termination | default "edge" }}
+    insecureEdgeTerminationPolicy: {{ .Values.route.tls.insecureEdgeTerminationPolicy | default "Redirect" }}
   {{- end }}
 {{- end }}

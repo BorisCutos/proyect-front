@@ -78,3 +78,11 @@ pvc:
 labels:
   app: mi-app-frontend
   areanegocio: tecnologia
+
+route:
+  enabled: true          # <- crea la Route
+  host: ""               # déjalo vacío y OpenShift asigna host automático
+  tls:
+    enabled: true        # HTTPS
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

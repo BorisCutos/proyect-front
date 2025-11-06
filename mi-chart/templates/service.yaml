@@ -9,7 +9,8 @@ spec:
   selector:
     app.kubernetes.io/name: {{ include "mi.fullname" . }}
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: {{ .Values.service.port }}
       targetPort: {{ .Values.containerPort }}
   type: {{ .Values.service.type }}
