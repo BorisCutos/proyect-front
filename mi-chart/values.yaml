@@ -86,3 +86,6 @@ route:
     enabled: true        # HTTPS
     termination: edge
     insecureEdgeTerminationPolicy: Redirect
+
+networkPolicy:
+  enabled: false
