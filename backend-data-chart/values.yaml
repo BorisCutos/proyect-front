@@ -1,0 +1,58 @@
+namespace: k-att-y70-dev
+
+names:
+  deployment: backend-data-deployment
+  service: backend-data
+  configmap: backend-data-configmap
+  secret: backend-data-secret
+  hpa: backend-data-hpa
+
+labels:
+  app: backend-data
+  areanegocio: tecnologia
+
+replicas: 1
+
+image:
+  repository: boriscutos/backend-data
+  tag: ""                 # se pasa por --set image.tag=build-123
+  pullPolicy: Always
+
+containerPort: 3000
+servicePort: 3000
+
+resources:
+  requests:
+    cpu: "250m"
+    memory: "512Mi"
+  limits:
+    cpu: "500m"
+    memory: "1Gi"
+
+probes:
+  liveness:
+    path: /health
+    port: 3000
+    failureThreshold: 5
+    initialDelaySeconds: 30
+    periodSeconds: 10
+  readiness:
+    path: /health
+    port: 3000
+    failureThreshold: 5
+    initialDelaySeconds: 20
+    periodSeconds: 10
+
+config:
+  DB_HOST: "postgresql.k-att-y70-dev.svc.cluster.local"
+  DB_PORT: "5432"
+  DB_NAME: "proj-openshift"
+  DB_USER: "openshift"
+
+secret:
+  DB_PASSWORD_B64: "b3BlbnNoaWZ0"  # "openshift" en base64
+
+hpa:
+  minReplicas: 1
+  maxReplicas: 3
+  cpuAverageUtilization: 80

@@ -6,7 +6,7 @@ metadata:
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
-    kind: deployment        # (se mantiene tal cual está en tu oc.yaml)
+    kind: Deployment
     name: {{ .Values.names.deployment }}
   minReplicas: {{ .Values.hpa.minReplicas }}
   maxReplicas: {{ .Values.hpa.maxReplicas }}

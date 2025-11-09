@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend - OpenShift Project</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .loading {
+            text-align: center;
+            color: #667eea;
+            margin: 20px 0;
+            font-style: italic;
+        }
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c00;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .results {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .results h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:hover {
+            background: #f0f0f0;
+        }
+        .info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .info strong {
+            color: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 OpenShift Project</h1>
+        <p class="subtitle">Frontend → Backend-API → Backend-Data → PostgreSQL</p>
+        
+        <div class="info">
+            <strong>Arquitectura:</strong><br>
+            Frontend (puerto 3000) → Backend-API (puerto 3000) → Backend-Data (puerto 3000) → PostgreSQL (puerto 5432)
+        </div>
+
+        <button id="fetchBtn" onclick="fetchData()">📊 Consultar Datos desde PostgreSQL</button>
+        
+        <div id="loading" class="loading" style="display: none;">
+            ⏳ Consultando datos...
+        </div>
+        
+        <div id="error" class="error" style="display: none;"></div>
+        
+        <div id="results" class="results" style="display: none;">
+            <h2>Resultados de la Base de Datos:</h2>
+            <div id="tableContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchData() {
+            const btn = document.getElementById('fetchBtn');
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const results = document.getElementById('results');
+            const tableContainer = document.getElementById('tableContainer');
+
+            // Reset
+            btn.disabled = true;
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            results.style.display = 'none';
+
+            try {
+                // Llamada al backend-api
+                const response = await fetch('http://backend-api.k-att-y70-dev.svc.cluster.local:3000/');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Mostrar resultados
+                if (data.users && data.users.length > 0) {
+                    let tableHTML = '<table><thead><tr><th>ID</th><th>Nombre</th><th>Email</th><th>Fecha Creación</th></tr></thead><tbody>';
+                    
+                    data.users.forEach(user => {
+                        tableHTML += `<tr>
+                            <td>${user.id}</td>
+                            <td>${user.name}</td>
+                            <td>${user.email}</td>
+                            <td>${new Date(user.created_at).toLocaleString()}</td>
+                        </tr>`;
+                    });
+                    
+                    tableHTML += '</tbody></table>';
+                    tableContainer.innerHTML = tableHTML;
+                    results.style.display = 'block';
+                } else {
+                    tableContainer.innerHTML = '<p>No hay datos disponibles.</p>';
+                    results.style.display = 'block';
+                }
+                
+            } catch (err) {
+                error.textContent = `❌ Error al consultar datos: ${err.message}`;
+                error.style.display = 'block';
+                console.error('Error:', err);
+            } finally {
+                loading.style.display = 'none';
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

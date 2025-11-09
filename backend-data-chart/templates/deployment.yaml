@@ -17,7 +17,7 @@ spec:
         app: {{ .Values.labels.app }}
     spec:
       containers:
-        - name: contenedor-principal
+        - name: backend-data-container
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default "latest" }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
@@ -34,19 +34,6 @@ spec:
                 name: {{ .Values.names.configmap }}
             - secretRef:
                 name: {{ .Values.names.secret }}
-          startupProbe:
-            httpGet:
-              path: {{ .Values.probes.startup.path }}
-              port: {{ .Values.probes.startup.port }}
-            failureThreshold: {{ .Values.probes.startup.failureThreshold }}
-            periodSeconds: {{ .Values.probes.startup.periodSeconds }}
-          readinessProbe:
-            httpGet:
-              path: {{ .Values.probes.readiness.path }}
-              port: {{ .Values.probes.readiness.port }}
-            failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
-            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
-            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
           livenessProbe:
             httpGet:
               path: {{ .Values.probes.liveness.path }}
@@ -54,3 +41,10 @@ spec:
             failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
             initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
             periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.probes.readiness.path }}
+              port: {{ .Values.probes.readiness.port }}
+            failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
+            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}

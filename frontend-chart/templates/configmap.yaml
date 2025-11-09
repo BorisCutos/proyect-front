@@ -4,4 +4,4 @@ metadata:
   name: {{ .Values.names.configmap }}
   namespace: {{ .Values.namespace }}
 data:
-  DATABASE: {{ .Values.config.DATABASE | quote }}
+  BACKEND_API_URL: {{ .Values.config.BACKEND_API_URL | quote }}
