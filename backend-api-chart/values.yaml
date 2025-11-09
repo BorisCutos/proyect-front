@@ -5,6 +5,7 @@ names:
   service: backend-api
   configmap: backend-api-configmap
   hpa: backend-api-hpa
+  secret: backend-api-secret
 
 labels:
   app: backend-api
@@ -49,3 +50,6 @@ hpa:
   minReplicas: 1
   maxReplicas: 5
   cpuAverageUtilization: 80
+
+secret:
+  PASSWORD_B64: "ZHVtbXk="  
