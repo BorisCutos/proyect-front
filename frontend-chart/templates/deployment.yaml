@@ -48,8 +48,8 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: frontend-pvc
-  namespace: k-att-y70-dev
+  name: {{ .Values.names.pvc }}
+  namespace: {{ .Values.namespace }}
 spec:
   accessModes:
     - ReadWriteMany

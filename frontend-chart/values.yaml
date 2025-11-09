@@ -6,6 +6,7 @@ names:
   configmap: frontend-configmap
   hpa: frontend-hpa
   secret: frontend-secret
+  pvc: frontend-pvc
 
 labels:
   app: frontend
