@@ -5,6 +5,7 @@ names:
   service: frontend-service
   configmap: frontend-configmap
   hpa: frontend-hpa
+  secret: frontend-secret
 
 labels:
   app: frontend
@@ -48,3 +49,6 @@ hpa:
   minReplicas: 1
   maxReplicas: 3
   cpuAverageUtilization: 80
+
+secret:
+  PASSWORD_B64: "ZHVtbXk=" 
