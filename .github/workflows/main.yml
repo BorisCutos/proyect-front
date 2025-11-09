@@ -44,15 +44,74 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
   # ============================================
-  # BUILD BACKEND-API
+  # BUILD BACKEND-API (COMMENTED - Not deploying)
   # ============================================
-  
+  # build-backend-api:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Log in to Docker Hub
+  #       uses: docker/login-action@v3
+  #       with:
+  #         username: ${{ secrets.DOCKER_USERNAME }}
+  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
+  #
+  #     - name: Extract metadata for Backend-API
+  #       id: meta
+  #       uses: docker/metadata-action@v5
+  #       with:
+  #         images: ${{ env.DOCKER_USERNAME }}/backend-api
+  #         tags: |
+  #           type=raw,value=build-${{ github.run_number }}
+  #
+  #     - name: Build & Push Backend-API image
+  #       uses: docker/build-push-action@v5
+  #       with:
+  #         context: ./backend-api-chart
+  #         file: ./backend-api-chart/Dockerfile
+  #         push: true
+  #         tags: ${{ steps.meta.outputs.tags }}
+  #         labels: ${{ steps.meta.outputs.labels }}
 
   # ============================================
-  # DEPLOY ALL SERVICES
+  # BUILD BACKEND-DATA (COMMENTED - Not deploying)
+  # ============================================
+  # build-backend-data:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Log in to Docker Hub
+  #       uses: docker/login-action@v3
+  #       with:
+  #         username: ${{ secrets.DOCKER_USERNAME }}
+  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
+  #
+  #     - name: Extract metadata for Backend-Data
+  #       id: meta
+  #       uses: docker/metadata-action@v5
+  #       with:
+  #         images: ${{ env.DOCKER_USERNAME }}/backend-data
+  #         tags: |
+  #           type=raw,value=build-${{ github.run_number }}
+  #
+  #     - name: Build & Push Backend-Data image
+  #       uses: docker/build-push-action@v5
+  #       with:
+  #         context: ./backend-data-chart
+  #         file: ./backend-data-chart/Dockerfile
+  #         push: true
+  #         tags: ${{ steps.meta.outputs.tags }}
+  #         labels: ${{ steps.meta.outputs.labels }}
+
+  # ============================================
+  # DEPLOY FRONTEND ONLY
   # ============================================
   deploy:
-    needs: [build-frontend, build-backend-api, build-backend-data]
+    needs: [build-frontend]  # ← SOLO ESPERA FRONTEND
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -75,14 +134,7 @@ jobs:
         run: oc project ${{ env.OPENSHIFT_PROJECT }}
 
       # ============================================
-      # DEPLOY BACKEND-DATA (primero, necesita conectarse a DB)
-      # ============================================
-      #- name: Helm Lint - Backend-Data
-      #  run: helm lint ./backend-data-chart
-
-     
-      # ============================================
-      # DEPLOY FRONTEND (último, depende de backend-api)
+      # DEPLOY FRONTEND
       # ============================================
       - name: Helm Lint - Frontend
         run: helm lint ./frontend-chart
