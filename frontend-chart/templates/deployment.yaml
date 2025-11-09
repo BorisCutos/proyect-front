@@ -48,7 +48,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mi-pvc-principal
+  name: mi-pvc-frontend
   namespace: k-att-y70-dev
 spec:
   accessModes:
