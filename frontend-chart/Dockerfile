@@ -1,18 +1,22 @@
 # Dockerfile para Frontend
 FROM nginx:alpine
 
-# Crear usuario no-root para OpenShift
-RUN addgroup -g 1001 appgroup && \
-    adduser -D -u 1001 -G appgroup appuser && \
-    chown -R appuser:appgroup /var/cache/nginx && \
-    chown -R appuser:appgroup /var/run && \
-    chown -R appuser:appgroup /etc/nginx && \
-    touch /var/run/nginx.pid && \
-    chown -R appuser:appgroup /var/run/nginx.pid
+# Crear directorios necesarios y darles permisos apropiados
+RUN mkdir -p /var/cache/nginx/client_temp \
+    /var/cache/nginx/proxy_temp \
+    /var/cache/nginx/fastcgi_temp \
+    /var/cache/nginx/uwsgi_temp \
+    /var/cache/nginx/scgi_temp \
+    /var/run \
+    && chmod -R 777 /var/cache/nginx \
+    && chmod -R 777 /var/run \
+    && chmod -R 777 /etc/nginx \
+    && touch /var/run/nginx.pid \
+    && chmod 777 /var/run/nginx.pid
 
-# Configuración de nginx para puerto 3000 y usuario no-root
+# Crear configuración de nginx para puerto 8080 (OpenShift no permite puertos < 1024)
 RUN echo 'server {' > /etc/nginx/conf.d/default.conf && \
-    echo '    listen 3000;' >> /etc/nginx/conf.d/default.conf && \
+    echo '    listen 8080;' >> /etc/nginx/conf.d/default.conf && \
     echo '    server_name localhost;' >> /etc/nginx/conf.d/default.conf && \
     echo '    location / {' >> /etc/nginx/conf.d/default.conf && \
     echo '        root /usr/share/nginx/html;' >> /etc/nginx/conf.d/default.conf && \
@@ -22,13 +26,13 @@ RUN echo 'server {' > /etc/nginx/conf.d/default.conf && \
     echo '}' >> /etc/nginx/conf.d/default.conf
 
 # Copiar archivos HTML
-COPY --chown=appuser:appgroup index.html /usr/share/nginx/html/
+COPY index.html /usr/share/nginx/html/
 
-# Cambiar permisos
-RUN chmod -R 755 /usr/share/nginx/html
+# Dar permisos a todo el directorio HTML
+RUN chmod -R 777 /usr/share/nginx/html
 
-USER appuser
+# Exponer puerto 8080 (en lugar de 3000)
+EXPOSE 8080
 
-EXPOSE 3000
-
+# Ejecutar nginx como proceso foreground
 CMD ["nginx", "-g", "daemon off;"]
