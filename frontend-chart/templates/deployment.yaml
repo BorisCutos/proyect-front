@@ -44,16 +44,3 @@ spec:
             failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
             initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
             periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
-
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: {{ .Values.names.pvc }}
-  namespace: {{ .Values.namespace }}
-spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 1Gi
-  storageClassName: gp3
