@@ -7,6 +7,7 @@ names:
   secret: backend-api-secret
   route: backend-api-route  
   hpa: backend-api-hpa
+  networkpolicy: backend-api-networkpolicy
 
 labels:
   app: backend-api

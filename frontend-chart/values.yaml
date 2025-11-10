@@ -6,6 +6,7 @@ names:
   configmap: frontend-configmap
   secret: frontend-secret
   hpa: frontend-hpa
+  networkpolicy: frontend-networkpolicy
 
 labels:
   app: frontend

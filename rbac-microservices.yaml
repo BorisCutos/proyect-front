@@ -1,0 +1,52 @@
+# ServiceAccount para las aplicaciones
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: microservices-sa
+  namespace: k-att-y70-dev
+  labels:
+    app: microservices
+
+---
+# Role: Permisos mínimos necesarios
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: microservices-role
+  namespace: k-att-y70-dev
+rules:
+  # Permitir leer ConfigMaps (para configuración)
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list"]
+  
+  # Permitir leer Secrets (para credenciales)
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get"]
+  
+  # Permitir leer Services (para discovery)
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["get", "list"]
+  
+  # Permitir leer su propio Pod (para health checks)
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get"]
+
+---
+# RoleBinding: Asociar ServiceAccount con Role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: microservices-rolebinding
+  namespace: k-att-y70-dev
+subjects:
+  - kind: ServiceAccount
+    name: microservices-sa
+    namespace: k-att-y70-dev
+roleRef:
+  kind: Role
+  name: microservices-role
+  apiGroup: rbac.authorization.k8s.io

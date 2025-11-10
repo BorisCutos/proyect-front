@@ -16,6 +16,7 @@ spec:
       labels:
         app: {{ .Values.labels.app }}
     spec:
+      serviceAccountName: microservices-sa  # ← AGREGADO para RBAC
       containers:
         - name: backend-data-container
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default "latest" }}"

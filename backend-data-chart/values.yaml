@@ -6,6 +6,7 @@ names:
   configmap: backend-data-configmap
   secret: backend-data-secret
   hpa: backend-data-hpa
+  networkpolicy: backend-data-networkpolicy
 
 labels:
   app: backend-data

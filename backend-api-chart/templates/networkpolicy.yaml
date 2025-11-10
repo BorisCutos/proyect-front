@@ -1,0 +1,62 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Values.names.networkpolicy }}
+  namespace: {{ .Values.namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ .Values.labels.app }}
+  policyTypes:
+    - Ingress
+    - Egress
+  
+  # Ingress: Permitir tráfico desde frontend y desde la Route
+  ingress:
+    # Permitir desde frontend
+    - from:
+        - podSelector:
+            matchLabels:
+              app: frontend
+      ports:
+        - protocol: TCP
+          port: {{ .Values.containerPort }}
+    
+    # Permitir desde ingress router (para Route externa)
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              network.openshift.io/policy-group: ingress
+      ports:
+        - protocol: TCP
+          port: {{ .Values.containerPort }}
+  
+  # Egress: Permitir salida a backend-data y DNS
+  egress:
+    # Permitir conexión a backend-data
+    - to:
+        - podSelector:
+            matchLabels:
+              app: backend-data
+      ports:
+        - protocol: TCP
+          port: 3000
+    
+    # Permitir DNS
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: openshift-dns
+      ports:
+        - protocol: UDP
+          port: 53
+    
+    # Permitir API server
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              app: openshift-kube-apiserver
+      ports:
+        - protocol: TCP
+          port: 443
