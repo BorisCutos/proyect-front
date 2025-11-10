@@ -121,7 +121,7 @@
         
         <div class="info">
             <strong>Arquitectura:</strong><br>
-            Frontend (puerto 3000) → Backend-API (puerto 3000) → Backend-Data (puerto 3000) → PostgreSQL (puerto 5432)
+            Frontend (puerto 8080) → Backend-API (puerto 3000) → Backend-Data (puerto 3000) → PostgreSQL (puerto 5432)
         </div>
 
         <button id="fetchBtn" onclick="fetchData()">📊 Consultar Datos desde PostgreSQL</button>
@@ -139,6 +139,9 @@
     </div>
 
     <script>
+        // ← URL DE LA ROUTE EXTERNA (para acceso desde navegador)
+        const BACKEND_API_URL = 'https://backend-api-k-att-y70-dev.apps.rm2.thpm.p1.openshiftapps.com';
+
         async function fetchData() {
             const btn = document.getElementById('fetchBtn');
             const loading = document.getElementById('loading');
@@ -153,14 +156,16 @@
             results.style.display = 'none';
 
             try {
-                // Llamada al backend-api
-                const response = await fetch('http://backend-api.k-att-y70-dev.svc.cluster.local:3000/');
+                // Llamada al backend-api usando la Route externa
+                console.log('Llamando a:', BACKEND_API_URL);
+                const response = await fetch(BACKEND_API_URL);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 
                 const data = await response.json();
+                console.log('Datos recibidos:', data);
                 
                 // Mostrar resultados
                 if (data.users && data.users.length > 0) {
@@ -186,7 +191,7 @@
             } catch (err) {
                 error.textContent = `❌ Error al consultar datos: ${err.message}`;
                 error.style.display = 'block';
-                console.error('Error:', err);
+                console.error('Error completo:', err);
             } finally {
                 loading.style.display = 'none';
                 btn.disabled = false;
