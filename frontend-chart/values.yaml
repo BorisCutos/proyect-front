@@ -5,8 +5,9 @@ names:
   service: frontend-service
   configmap: frontend-configmap
   secret: frontend-secret
-  hpa: frontend-hpa
+  route: frontend-route  # ← AGREGADO
   networkpolicy: frontend-networkpolicy
+  hpa: frontend-hpa
 
 labels:
   app: frontend
@@ -19,8 +20,12 @@ image:
   tag: ""                 # se pasa por --set image.tag=build-123
   pullPolicy: Always
 
-containerPort: 8080  # ← CAMBIO: Era 3000, ahora 8080
-servicePort: 8080    # ← CAMBIO: Era 3000, ahora 8080
+containerPort: 8080
+servicePort: 8080
+
+# ← NUEVO: Configuración de la Route
+route:
+  host: frontend-k-att-y70-dev.apps.rm2.thpm.p1.openshiftapps.com  # Hostname fijo para acceder
 
 resources:
   requests:
@@ -33,12 +38,12 @@ resources:
 probes:
   # Nginx no tiene endpoints HTTP personalizados, usamos TCP
   liveness:
-    port: 8080  # ← CAMBIO: Era 3000, ahora 8080
+    port: 8080
     failureThreshold: 3
     initialDelaySeconds: 10
     periodSeconds: 10
   readiness:
-    port: 8080  # ← CAMBIO: Era 3000, ahora 8080
+    port: 8080
     failureThreshold: 3
     initialDelaySeconds: 5
     periodSeconds: 10
